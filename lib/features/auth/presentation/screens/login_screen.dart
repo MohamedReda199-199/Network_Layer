@@ -1,7 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ligalife/core/di/injection.dart';
-import 'package:ligalife/features/auth/domain/usecases/login_params.dart';
+import 'package:ligalife/core/network/network_result.dart';
+import 'package:ligalife/features/auth/data/models/login_response.dart';
+import 'package:ligalife/features/auth/domain/models/login_request.dart';
 import 'package:ligalife/features/auth/domain/usecases/login_usecase.dart';
 import 'package:ligalife/features/auth/presentation/widgets/background_circles.dart';
 import 'package:ligalife/features/auth/presentation/widgets/country_code_field.dart';
@@ -19,30 +20,31 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _phoneController = TextEditingController();
   final _countryController = TextEditingController(text: "+20");
+
   final LoginUseCase _loginUseCase = getIt<LoginUseCase>();
 
   String result = "";
 
   Future<void> login() async {
-    try {
-      final response = await _loginUseCase(
-        LoginParams(
-          phone: _phoneController.text.trim(),
-          countryCode: _countryController.text.trim(),
-        ),
-      );
+    final response = await _loginUseCase(
+      LoginRequest(
+        phone: _phoneController.text.trim(),
+        countryCode: _countryController.text.trim(),
+      ),
+    );
 
-      setState(() {
-        result = response.message;
-      });
-    } on DioException catch (e) {
-      setState(() {
-        result = e.response?.data["message"] ?? "Request Failed";
-      });
-    } catch (_) {
-      setState(() {
-        result = "Unexpected Error";
-      });
+    switch (response) {
+      case Success<LoginResponse>():
+        setState(() {
+          result = response.data.message;
+        });
+        break;
+
+      case Error<LoginResponse>():
+        setState(() {
+          result = response.failure.message;
+        });
+        break;
     }
   }
 
@@ -66,18 +68,31 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 children: [
                   const Spacer(),
+
                   const LoginHeader(),
+
                   const SizedBox(height: 55),
+
                   Row(
                     children: [
-                      CountryCodeField(controller: _countryController),
+                      CountryCodeField(
+                        controller: _countryController,
+                      ),
                       const SizedBox(width: 12),
-                      PhoneField(controller: _phoneController),
+                      PhoneField(
+                        controller: _phoneController,
+                      ),
                     ],
                   ),
+
                   const SizedBox(height: 35),
-                  LoginButton(onPressed: login),
+
+                  LoginButton(
+                    onPressed: login,
+                  ),
+
                   const SizedBox(height: 25),
+
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: result.isEmpty
@@ -95,6 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                   ),
+
                   const Spacer(flex: 2),
                 ],
               ),

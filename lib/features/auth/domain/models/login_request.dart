@@ -1,8 +1,8 @@
-class PhoneRequestModel {
+class LoginRequest {
   final String phone;
   final String countryCode;
 
-  PhoneRequestModel({required this.phone, required this.countryCode});
+  LoginRequest({required this.phone, required this.countryCode});
 
   Map<String, dynamic> toJson() {
     return {"phone": phone, "country_code": countryCode};
