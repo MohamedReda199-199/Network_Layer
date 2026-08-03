@@ -14,7 +14,7 @@ class BackgroundCircles extends StatelessWidget {
             width: 180,
             height: 180,
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(.08),
+              color: Colors.blue.withValues(alpha: .08),
               shape: BoxShape.circle,
             ),
           ),
@@ -26,7 +26,7 @@ class BackgroundCircles extends StatelessWidget {
             width: 150,
             height: 150,
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(.08),
+              color: Colors.blue.withValues(alpha: .08),
               shape: BoxShape.circle,
             ),
           ),

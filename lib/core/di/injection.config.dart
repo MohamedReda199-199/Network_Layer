@@ -16,8 +16,14 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:ligalife/core/di/register_module.dart' as _i458;
 import 'package:ligalife/core/network/network_info.dart' as _i799;
 import 'package:ligalife/core/network/services/api_service.dart' as _i316;
-import 'package:ligalife/features/auth/data/repository/auth_repository.dart'
+import 'package:ligalife/features/auth/data/remote/auth_api_service.dart'
+    as _i741;
+import 'package:ligalife/features/auth/data/repository/auth_repository_impl.dart'
     as _i1015;
+import 'package:ligalife/features/auth/domain/repositories/auth_repository.dart'
+    as _i200;
+import 'package:ligalife/features/auth/domain/usecases/login_usecase.dart'
+    as _i900;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -35,8 +41,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i316.ApiService>(
       () => registerModule.apiService(gh<_i361.Dio>()),
     );
-    gh.lazySingleton<_i1015.AuthRepository>(
-      () => _i1015.AuthRepository(gh<_i316.ApiService>()),
+    gh.lazySingleton<_i741.AuthApiService>(
+      () => _i741.AuthApiService(gh<_i316.ApiService>()),
+    );
+    gh.lazySingleton<_i200.AuthRepository>(
+      () => _i1015.AuthRepositoryImpl(gh<_i741.AuthApiService>()),
+    );
+    gh.lazySingleton<_i900.LoginUseCase>(
+      () => _i900.LoginUseCase(gh<_i200.AuthRepository>()),
     );
     return this;
   }

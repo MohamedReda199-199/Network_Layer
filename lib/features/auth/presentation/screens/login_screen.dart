@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ligalife/core/di/injection.dart';
-import 'package:ligalife/features/auth/data/repository/auth_repository.dart';
+import 'package:ligalife/features/auth/domain/usecases/login_params.dart';
+import 'package:ligalife/features/auth/domain/usecases/login_usecase.dart';
 import 'package:ligalife/features/auth/presentation/widgets/background_circles.dart';
 import 'package:ligalife/features/auth/presentation/widgets/country_code_field.dart';
 import 'package:ligalife/features/auth/presentation/widgets/login_button.dart';
@@ -18,16 +19,17 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _phoneController = TextEditingController();
   final _countryController = TextEditingController(text: "+20");
-
-  final AuthRepository repository = getIt<AuthRepository>();
+  final LoginUseCase _loginUseCase = getIt<LoginUseCase>();
 
   String result = "";
 
   Future<void> login() async {
     try {
-      final response = await repository.login(
-        phone: _phoneController.text.trim(),
-        countryCode: _countryController.text.trim(),
+      final response = await _loginUseCase(
+        LoginParams(
+          phone: _phoneController.text.trim(),
+          countryCode: _countryController.text.trim(),
+        ),
       );
 
       setState(() {
