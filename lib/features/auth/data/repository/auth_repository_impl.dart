@@ -18,7 +18,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<NetworkResult<LoginResponse>> login(LoginRequest request) async {
     try {
       final response = await apiService.login(request);
-
       return Success(LoginResponse.fromJson(response));
     } on UnauthorizedException {
       return Error(ServerFailure("Unauthorized"));

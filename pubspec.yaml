@@ -54,7 +54,7 @@ dev_dependencies:
   json_serializable: ^6.10.0
   injectable_generator: ^2.7.0
   flutter_gen_runner: ^5.15.0
-  freezed: ^3.2.0
+  freezed: ^3.2.5
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

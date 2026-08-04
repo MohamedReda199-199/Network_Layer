@@ -14,7 +14,6 @@ class ErrorInterceptor extends Interceptor {
       default:
         break;
     }
-
     switch (err.response?.statusCode) {
       case 400:
         throw ServerException();

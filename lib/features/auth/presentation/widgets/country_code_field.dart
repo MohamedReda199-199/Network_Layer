@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class CountryCodeField extends StatelessWidget {
   final TextEditingController controller;
-
   const CountryCodeField({super.key, required this.controller});
 
   @override

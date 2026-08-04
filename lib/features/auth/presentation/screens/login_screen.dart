@@ -36,29 +36,24 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           const BackgroundCircles(),
-
           SafeArea(
             child: BlocConsumer<LoginCubit, LoginState>(
               listenWhen: (previous, current) =>
                   previous.requestState != current.requestState,
-
               listener: (context, state) {
                 if (state.requestState == RequestState.success) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.response?.message ?? '')),
                   );
                 }
-
                 if (state.requestState == RequestState.error) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.errorMessage ?? '')),
                   );
                 }
               },
-
               builder: (context, state) {
                 final isLoading = state.requestState == RequestState.loading;
-
                 return SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
@@ -68,11 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 40),
-
                       const LoginHeader(),
-
                       const SizedBox(height: 40),
-
                       Row(
                         children: [
                           SizedBox(
@@ -81,29 +73,25 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: countryCodeController,
                             ),
                           ),
-
                           const SizedBox(width: 12),
-
                           Expanded(
                             child: PhoneField(controller: phoneController),
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 30),
-
                       LoginButton(
                         isLoading: isLoading,
                         onPressed: () {
+                          FocusScope.of(context).unfocus();
                           if (phoneController.text.trim().isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Please enter phone number"),
+                                content: Text('Please enter phone number'),
                               ),
                             );
                             return;
                           }
-
                           context.read<LoginCubit>().login(
                             phone: phoneController.text.trim(),
                             countryCode: countryCodeController.text.trim(),
