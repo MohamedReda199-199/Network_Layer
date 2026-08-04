@@ -82,7 +82,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   void resendCode() {
-    if (!state.canResend) return;
+   // if (!state.canResend) return;
     startCountDown();
   }
   @override

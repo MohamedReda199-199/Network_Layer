@@ -6,9 +6,7 @@ import 'package:ligalife/features/auth/presentation/screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await configureDependencies();
-
   runApp(const MyApp());
 }
 

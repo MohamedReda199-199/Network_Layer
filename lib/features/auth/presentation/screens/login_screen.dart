@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ligalife/core/enums/request_state.dart';
-import '../cubit/login_cubit.dart';
-import '../cubit/login_state.dart';
-import '../widgets/background_circles.dart';
-import '../widgets/country_code_field.dart';
-import '../widgets/login_button.dart';
-import '../widgets/login_header.dart';
-import '../widgets/phone_field.dart';
+import 'package:ligalife/features/auth/presentation/cubit/login_cubit.dart';
+import 'package:ligalife/features/auth/presentation/cubit/login_state.dart';
+import 'package:ligalife/features/auth/presentation/screens/otp_screen.dart';
+import 'package:ligalife/features/auth/presentation/widgets/background_circles.dart';
+import 'package:ligalife/features/auth/presentation/widgets/country_code_field.dart';
+import 'package:ligalife/features/auth/presentation/widgets/login_button.dart';
+import 'package:ligalife/features/auth/presentation/widgets/login_header.dart';
+import 'package:ligalife/features/auth/presentation/widgets/phone_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,17 +39,28 @@ class _LoginScreenState extends State<LoginScreen> {
           const BackgroundCircles(),
           SafeArea(
             child: BlocConsumer<LoginCubit, LoginState>(
-              listenWhen: (previous, current) =>
-                  previous.requestState != current.requestState,
               listener: (context, state) {
                 if (state.requestState == RequestState.success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.response?.message ?? '')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<LoginCubit>(),
+                        child: OtpScreen(
+                          phone: phoneController.text.trim(),
+                          countryCode: countryCodeController.text.trim(),
+                        ),
+                      ),
+                    ),
                   );
                 }
                 if (state.requestState == RequestState.error) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.errorMessage ?? '')),
+                    SnackBar(
+                      content: Text(
+                        state.errorMessage ?? "Something went wrong",
+                      ),
+                    ),
                   );
                 }
               },
@@ -83,15 +95,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       LoginButton(
                         isLoading: isLoading,
                         onPressed: () {
-                          FocusScope.of(context).unfocus();
-                          if (phoneController.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please enter phone number'),
-                              ),
-                            );
-                            return;
-                          }
                           context.read<LoginCubit>().login(
                             phone: phoneController.text.trim(),
                             countryCode: countryCodeController.text.trim(),
