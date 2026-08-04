@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LoginState {
 
- RequestState get requestState; LoginResponse? get response; String? get errorMessage;
+ RequestState get requestState; LoginResponse? get response; String? get errorMessage; int get countDown; bool get canResend;
 /// Create a copy of LoginState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $LoginStateCopyWith<LoginState> get copyWith => _$LoginStateCopyWithImpl<LoginSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LoginState&&(identical(other.requestState, requestState) || other.requestState == requestState)&&(identical(other.response, response) || other.response == response)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LoginState&&(identical(other.requestState, requestState) || other.requestState == requestState)&&(identical(other.response, response) || other.response == response)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.countDown, countDown) || other.countDown == countDown)&&(identical(other.canResend, canResend) || other.canResend == canResend));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,requestState,response,errorMessage);
+int get hashCode => Object.hash(runtimeType,requestState,response,errorMessage,countDown,canResend);
 
 @override
 String toString() {
-  return 'LoginState(requestState: $requestState, response: $response, errorMessage: $errorMessage)';
+  return 'LoginState(requestState: $requestState, response: $response, errorMessage: $errorMessage, countDown: $countDown, canResend: $canResend)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $LoginStateCopyWith<$Res>  {
   factory $LoginStateCopyWith(LoginState value, $Res Function(LoginState) _then) = _$LoginStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState requestState, LoginResponse? response, String? errorMessage
+ RequestState requestState, LoginResponse? response, String? errorMessage, int countDown, bool canResend
 });
 
 
@@ -62,12 +62,14 @@ class _$LoginStateCopyWithImpl<$Res>
 
 /// Create a copy of LoginState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? requestState = null,Object? response = freezed,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? requestState = null,Object? response = freezed,Object? errorMessage = freezed,Object? countDown = null,Object? canResend = null,}) {
   return _then(_self.copyWith(
 requestState: null == requestState ? _self.requestState : requestState // ignore: cast_nullable_to_non_nullable
 as RequestState,response: freezed == response ? _self.response : response // ignore: cast_nullable_to_non_nullable
 as LoginResponse?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,countDown: null == countDown ? _self.countDown : countDown // ignore: cast_nullable_to_non_nullable
+as int,canResend: null == canResend ? _self.canResend : canResend // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -152,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState requestState,  LoginResponse? response,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState requestState,  LoginResponse? response,  String? errorMessage,  int countDown,  bool canResend)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoginState() when $default != null:
-return $default(_that.requestState,_that.response,_that.errorMessage);case _:
+return $default(_that.requestState,_that.response,_that.errorMessage,_that.countDown,_that.canResend);case _:
   return orElse();
 
 }
@@ -173,10 +175,10 @@ return $default(_that.requestState,_that.response,_that.errorMessage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState requestState,  LoginResponse? response,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState requestState,  LoginResponse? response,  String? errorMessage,  int countDown,  bool canResend)  $default,) {final _that = this;
 switch (_that) {
 case _LoginState():
-return $default(_that.requestState,_that.response,_that.errorMessage);case _:
+return $default(_that.requestState,_that.response,_that.errorMessage,_that.countDown,_that.canResend);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +195,10 @@ return $default(_that.requestState,_that.response,_that.errorMessage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState requestState,  LoginResponse? response,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState requestState,  LoginResponse? response,  String? errorMessage,  int countDown,  bool canResend)?  $default,) {final _that = this;
 switch (_that) {
 case _LoginState() when $default != null:
-return $default(_that.requestState,_that.response,_that.errorMessage);case _:
+return $default(_that.requestState,_that.response,_that.errorMessage,_that.countDown,_that.canResend);case _:
   return null;
 
 }
@@ -208,12 +210,14 @@ return $default(_that.requestState,_that.response,_that.errorMessage);case _:
 
 
 class _LoginState implements LoginState {
-  const _LoginState({this.requestState = RequestState.initial, this.response, this.errorMessage});
+  const _LoginState({this.requestState = RequestState.initial, this.response, this.errorMessage, this.countDown = 60, this.canResend = false});
   
 
 @override@JsonKey() final  RequestState requestState;
 @override final  LoginResponse? response;
 @override final  String? errorMessage;
+@override@JsonKey() final  int countDown;
+@override@JsonKey() final  bool canResend;
 
 /// Create a copy of LoginState
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +229,16 @@ _$LoginStateCopyWith<_LoginState> get copyWith => __$LoginStateCopyWithImpl<_Log
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoginState&&(identical(other.requestState, requestState) || other.requestState == requestState)&&(identical(other.response, response) || other.response == response)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoginState&&(identical(other.requestState, requestState) || other.requestState == requestState)&&(identical(other.response, response) || other.response == response)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.countDown, countDown) || other.countDown == countDown)&&(identical(other.canResend, canResend) || other.canResend == canResend));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,requestState,response,errorMessage);
+int get hashCode => Object.hash(runtimeType,requestState,response,errorMessage,countDown,canResend);
 
 @override
 String toString() {
-  return 'LoginState(requestState: $requestState, response: $response, errorMessage: $errorMessage)';
+  return 'LoginState(requestState: $requestState, response: $response, errorMessage: $errorMessage, countDown: $countDown, canResend: $canResend)';
 }
 
 
@@ -245,7 +249,7 @@ abstract mixin class _$LoginStateCopyWith<$Res> implements $LoginStateCopyWith<$
   factory _$LoginStateCopyWith(_LoginState value, $Res Function(_LoginState) _then) = __$LoginStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState requestState, LoginResponse? response, String? errorMessage
+ RequestState requestState, LoginResponse? response, String? errorMessage, int countDown, bool canResend
 });
 
 
@@ -262,12 +266,14 @@ class __$LoginStateCopyWithImpl<$Res>
 
 /// Create a copy of LoginState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? requestState = null,Object? response = freezed,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? requestState = null,Object? response = freezed,Object? errorMessage = freezed,Object? countDown = null,Object? canResend = null,}) {
   return _then(_LoginState(
 requestState: null == requestState ? _self.requestState : requestState // ignore: cast_nullable_to_non_nullable
 as RequestState,response: freezed == response ? _self.response : response // ignore: cast_nullable_to_non_nullable
 as LoginResponse?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,countDown: null == countDown ? _self.countDown : countDown // ignore: cast_nullable_to_non_nullable
+as int,canResend: null == canResend ? _self.canResend : canResend // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
