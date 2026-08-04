@@ -1,25 +1,15 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:ligalife/features/auth/data/models/login_response.dart';
 
-sealed class LoginState {
-  const LoginState();
-}
+part 'login_state.freezed.dart';
 
-class LoginInitial extends LoginState {
-  const LoginInitial();
-}
+@freezed
+class LoginState with _$LoginState {
+  const factory LoginState.initial() = _Initial;
 
-class LoginLoading extends LoginState {
-  const LoginLoading();
-}
+  const factory LoginState.loading() = _Loading;
 
-class LoginSuccess extends LoginState {
-  final LoginResponse response;
+  const factory LoginState.success(LoginResponse response) = _Success;
 
-  const LoginSuccess(this.response);
-}
-
-class LoginFailure extends LoginState {
-  final String message;
-
-  const LoginFailure(this.message);
+  const factory LoginState.failure(String message) = _Failure;
 }

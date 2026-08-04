@@ -18,7 +18,7 @@ class LoginButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.grey,
           foregroundColor: const Color(0xff6C63FF),
           elevation: 2,
           shadowColor: Colors.black12,

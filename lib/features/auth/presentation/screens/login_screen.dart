@@ -35,23 +35,29 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           const BackgroundCircles(),
-
           SafeArea(
             child: BlocConsumer<LoginCubit, LoginState>(
               listener: (context, state) {
-                if (state is LoginSuccess) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.response.message)),
-                  );
-                }
-
-                if (state is LoginFailure) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
-                }
+                state.when(
+                  initial: () {},
+                  loading: () {},
+                  success: (response) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(response.message)));
+                  },
+                  failure: (message) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(message)));
+                  },
+                );
               },
               builder: (context, state) {
+                final isLoading = state.maybeWhen(
+                  loading: () => true,
+                  orElse: () => false,
+                );
                 return SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
@@ -61,9 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 40),
-
                       const LoginHeader(),
-
                       const SizedBox(height: 40),
                       Row(
                         children: [
@@ -73,19 +77,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: countryCodeController,
                             ),
                           ),
-
                           const SizedBox(width: 12),
-
                           Expanded(
                             child: PhoneField(controller: phoneController),
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 30),
-
                       LoginButton(
-                        isLoading: state is LoginLoading,
+                        isLoading: isLoading,
                         onPressed: () {
                           context.read<LoginCubit>().login(
                             phone: phoneController.text.trim(),
