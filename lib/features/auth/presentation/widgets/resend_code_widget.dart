@@ -4,26 +4,28 @@ import 'package:ligalife/features/auth/presentation/cubit/login_cubit.dart';
 import 'package:ligalife/features/auth/presentation/cubit/login_state.dart';
 
 class ResendCodeWidget extends StatelessWidget {
-  const ResendCodeWidget({super.key});
+  final VoidCallback onResend;
+
+  const ResendCodeWidget({
+    super.key,
+    required this.onResend,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginCubit, LoginState>(
+      buildWhen: (previous, current) =>
+          previous.countDown != current.countDown ||
+          previous.canResend != current.canResend,
       builder: (context, state) {
         if (state.canResend) {
           return TextButton(
-            onPressed: () {
-              context.read<LoginCubit>().resendCode();
-            },
-            child: const Text(
-              'Resend Code',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            onPressed: onResend,
+            child: const Text("Resend Code"),
           );
         }
         return Text(
-          'Resend code in ${state.countDown}s',
-          style: const TextStyle(color: Colors.grey),
+          "Resend code in ${state.countDown}s",
         );
       },
     );

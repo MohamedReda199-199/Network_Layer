@@ -2,83 +2,98 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ligalife/core/enums/request_state.dart';
 import '../cubit/login_cubit.dart';
-import '../cubit/login_state.dart';
 import '../widgets/otp_field.dart';
 import '../widgets/resend_code_widget.dart';
 
-class OtpScreen extends StatelessWidget {
+class OtpScreen extends StatefulWidget {
   final String phone;
   final String countryCode;
 
   const OtpScreen({super.key, required this.phone, required this.countryCode});
 
   @override
+  State<OtpScreen> createState() => _OtpScreenState();
+}
+
+class _OtpScreenState extends State<OtpScreen> {
+  late final List<TextEditingController> controllers;
+  late final List<FocusNode> focusNodes;
+
+  @override
+  void initState() {
+    super.initState();
+    controllers = List.generate(6, (_) => TextEditingController());
+    focusNodes = List.generate(6, (_) => FocusNode());
+  }
+
+  void clearOtp() {
+    for (final controller in controllers) {
+      controller.clear();
+    }
+    FocusScope.of(context).requestFocus(focusNodes.first);
+  }
+
+  @override
+  void dispose() {
+    for (final controller in controllers) {
+      controller.dispose();
+    }
+    for (final node in focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginCubit, LoginState>(
-      listenWhen: (previous, current) =>
-          previous.requestState != current.requestState,
-      listener: (context, state) {
-        if (state.requestState == RequestState.error) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.errorMessage ?? '')));
-        }
+    final isLoading = context.select<LoginCubit, bool>(
+      (cubit) => cubit.state.requestState == RequestState.loading,
+    );
 
-        if (state.requestState == RequestState.success) {
-          // TODO Verify Success
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(title: const Text("Verify Phone"), centerTitle: true),
-        body: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const SizedBox(height: 30),
-
-              const Text(
-                "Enter verification code",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+    return Scaffold(
+      appBar: AppBar(title: const Text("Verify Phone"), centerTitle: true),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            const Text(
+              "Enter verification code",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "${widget.countryCode} ${widget.phone}",
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 40),
+            OtpField(controllers: controllers, focusNodes: focusNodes),
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        final otp = controllers
+                            .map((controller) => controller.text)
+                            .join();
+                        debugPrint("OTP: $otp");
+                      },
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text("Verify"),
               ),
-
-              const SizedBox(height: 10),
-
-              Text(
-                "$countryCode $phone",
-                style: const TextStyle(color: Colors.grey),
-              ),
-
-              const SizedBox(height: 40),
-
-              const OtpField(),
-
-              const SizedBox(height: 30),
-
-              BlocSelector<LoginCubit, LoginState, bool>(
-                selector: (state) => state.requestState == RequestState.loading,
-                builder: (context, isLoading) {
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              // TODO Verify OTP API
-                            },
-                      child: isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text("Verify"),
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 30),
-
-              const ResendCodeWidget(),
-            ],
-          ),
+            ),
+            const SizedBox(height: 30),
+            ResendCodeWidget(
+              onResend: () {
+                clearOtp();
+                context.read<LoginCubit>().resendCode();
+              },
+            ),
+          ],
         ),
       ),
     );

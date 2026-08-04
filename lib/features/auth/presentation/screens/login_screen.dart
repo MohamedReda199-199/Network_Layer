@@ -39,6 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
           const BackgroundCircles(),
           SafeArea(
             child: BlocConsumer<LoginCubit, LoginState>(
+              listenWhen: (previous, current) =>
+                  previous.requestState != current.requestState,
+              buildWhen: (previous, current) =>
+                  previous.requestState != current.requestState,
               listener: (context, state) {
                 if (state.requestState == RequestState.success) {
                   Navigator.push(

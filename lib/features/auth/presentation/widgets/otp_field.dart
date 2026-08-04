@@ -1,64 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class OtpField extends StatefulWidget {
-  const OtpField({super.key});
+class OtpField extends StatelessWidget {
+  final List<TextEditingController> controllers;
+  final List<FocusNode> focusNodes;
 
-  @override
-  State<OtpField> createState() => _OtpFieldState();
-}
-
-class _OtpFieldState extends State<OtpField> {
-  final List<TextEditingController> controllers = List.generate(
-    6,
-    (_) => TextEditingController(),
-  );
-
-  final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
-
-  @override
-  void dispose() {
-    for (final controller in controllers) {
-      controller.dispose();
-    }
-    for (final node in focusNodes) {
-      node.dispose();
-    }
-    super.dispose();
-  }
+  const OtpField({
+    super.key,
+    required this.controllers,
+    required this.focusNodes,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(
-        6,
-        (index) => SizedBox(
+      children: List.generate(6, (index) {
+        return SizedBox(
           width: 48,
-          height: 56,
           child: TextField(
             controller: controllers[index],
             focusNode: focusNodes[index],
-            textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
             maxLength: 1,
-            decoration: InputDecoration(
-              counterText: '',
-              filled: true,
-              fillColor: const Color(0xffF4F5F7),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: const InputDecoration(
+              counterText: "",
+              border: OutlineInputBorder(),
             ),
             onChanged: (value) {
               if (value.isNotEmpty && index < 5) {
-                FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+                focusNodes[index + 1].requestFocus();
               } else if (value.isEmpty && index > 0) {
-                FocusScope.of(context).requestFocus(focusNodes[index - 1]);
+                focusNodes[index - 1].requestFocus();
               }
             },
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }
