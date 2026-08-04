@@ -1,15 +1,30 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:equatable/equatable.dart';
+import 'package:ligalife/core/enums/request_state.dart';
 import 'package:ligalife/features/auth/data/models/login_response.dart';
 
-part 'login_state.freezed.dart';
+class LoginState extends Equatable {
+  final RequestState requestState;
+  final LoginResponse? response;
+  final String? errorMessage;
 
-@freezed
-class LoginState with _$LoginState {
-  const factory LoginState.initial() = _Initial;
+  const LoginState({
+    this.requestState = RequestState.initial,
+    this.response,
+    this.errorMessage,
+  });
 
-  const factory LoginState.loading() = _Loading;
+  LoginState copyWith({
+    RequestState? requestState,
+    LoginResponse? response,
+    String? errorMessage,
+  }) {
+    return LoginState(
+      requestState: requestState ?? this.requestState,
+      response: response ?? this.response,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 
-  const factory LoginState.success(LoginResponse response) = _Success;
-
-  const factory LoginState.failure(String message) = _Failure;
+  @override
+  List<Object?> get props => [requestState, response, errorMessage];
 }
