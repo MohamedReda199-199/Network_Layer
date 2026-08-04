@@ -6,20 +6,24 @@ class LoginHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Welcome Back",
-          style: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+        Center(
+          child: Text(
+            "Welcome Back",
+            style: TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
         ),
         SizedBox(height: 10),
-        Text(
-          "Sign in to continue to your account",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 18, color: Colors.grey),
+        Center(
+          child: Text(
+            "Sign in to continue to your account",
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
         ),
       ],
     );
