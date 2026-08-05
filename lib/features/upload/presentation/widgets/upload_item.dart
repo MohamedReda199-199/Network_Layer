@@ -22,7 +22,7 @@ class UploadItem extends StatelessWidget {
                 ? Image.network(
                     image.file.path,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const ColoredBox(
+                    errorBuilder: (_, _, _) => const ColoredBox(
                       color: Colors.grey,
                       child: Center(child: Icon(Icons.image)),
                     ),
@@ -34,28 +34,38 @@ class UploadItem extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.black45,
+                color: Colors.black54,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Center(
                 child: SizedBox(
                   width: 70,
                   height: 70,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                        value: image.progress,
-                        strokeWidth: 5,
-                      ),
-                      Text(
-                        "${(image.progress * 100).toInt()}%",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.0, end: image.progress),
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, child) {
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            value: value == 0 ? null : value,
+                            strokeWidth: 5,
+                            color: Colors.white,
+                            backgroundColor: Colors.white24,
+                          ),
+                          Text(
+                            "${(value * 100).toInt()}%",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -66,19 +76,37 @@ class UploadItem extends StatelessWidget {
             left: 8,
             right: 8,
             bottom: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check, color: Colors.white, size: 16),
-                  SizedBox(width: 5),
-                  Text("Uploaded", style: TextStyle(color: Colors.white)),
-                ],
+            child: AnimatedScale(
+              scale: image.uploaded ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.elasticOut,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check, color: Colors.white, size: 16),
+                    SizedBox(width: 5),
+                    Text(
+                      "Uploaded",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -89,6 +117,7 @@ class UploadItem extends StatelessWidget {
             onTap: () {
               context.read<UploadCubit>().removeImage(index);
             },
+            borderRadius: BorderRadius.circular(14),
             child: Container(
               width: 28,
               height: 28,

@@ -54,50 +54,78 @@ class UploadCubit extends Cubit<UploadState> {
     if (state.images.isEmpty) {
       return;
     }
-    emit(state.copyWith(requestState: RequestState.loading));
+
+    final unUploadedIndices = <int>[];
+    final filesToUpload = <File>[];
+
     final updated = List<UploadImageModel>.from(state.images);
-    int uploaded = 0;
+
     for (int i = 0; i < updated.length; i++) {
-      updated[i] = updated[i].copyWith(
-        uploading: true,
-        uploaded: false,
-        progress: 0,
-      );
-      emit(state.copyWith(images: List.from(updated)));
-      final result = await _uploadImagesUseCase(
-        [updated[i].file],
-        onProgress: (sent, total) {
-          updated[i] = updated[i].copyWith(
-            progress: total == 0 ? 0 : sent / total,
-          );
-          emit(state.copyWith(images: List.from(updated)));
-        },
-      );
-      switch (result) {
-        case Success():
-          uploaded++;
-          updated[i] = updated[i].copyWith(
-            uploading: false,
-            uploaded: true,
-            progress: 1,
-          );
-          emit(
-            state.copyWith(images: List.from(updated), uploadedCount: uploaded),
-          );
-        case Error():
-          updated[i] = updated[i].copyWith(uploading: false);
-
-          emit(
-            state.copyWith(
-              requestState: RequestState.error,
-              errorMessage: result.failure.message,
-              images: List.from(updated),
-            ),
-          );
-
-          return;
+      if (!updated[i].uploaded) {
+        unUploadedIndices.add(i);
+        filesToUpload.add(updated[i].file);
+        updated[i] = updated[i].copyWith(
+          uploading: true,
+          progress: 0,
+        );
       }
     }
-    emit(state.copyWith(requestState: RequestState.success));
+
+    if (filesToUpload.isEmpty) return;
+
+    emit(
+      state.copyWith(
+        requestState: RequestState.loading,
+        errorMessage: null,
+        images: List.from(updated),
+      ),
+    );
+
+    final result = await _uploadImagesUseCase(
+      filesToUpload,
+      onProgress: (sent, total) {
+        if (total > 0) {
+          final progress = sent / total;
+          for (final index in unUploadedIndices) {
+            updated[index] = updated[index].copyWith(
+              progress: progress,
+            );
+          }
+          emit(state.copyWith(images: List.from(updated)));
+        }
+      },
+    );
+
+    switch (result) {
+      case Success():
+        for (final index in unUploadedIndices) {
+          updated[index] = updated[index].copyWith(
+            uploading: false,
+            uploaded: true,
+            progress: 1.0,
+          );
+        }
+        emit(
+          state.copyWith(
+            requestState: RequestState.success,
+            images: List.from(updated),
+            uploadedCount: state.images.length,
+          ),
+        );
+      case Error():
+        for (final index in unUploadedIndices) {
+          updated[index] = updated[index].copyWith(
+            uploading: false,
+            progress: 0,
+          );
+        }
+        emit(
+          state.copyWith(
+            requestState: RequestState.error,
+            errorMessage: result.failure.message,
+            images: List.from(updated),
+          ),
+        );
+    }
   }
 }
