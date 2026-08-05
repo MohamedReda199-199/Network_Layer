@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:ligalife/core/network/endpoints.dart';
 import 'package:ligalife/core/network/failure.dart';
 import 'package:ligalife/core/network/network_result.dart';
 import 'package:ligalife/features/upload/data/models/upload_response.dart';
@@ -19,6 +18,7 @@ class UploadRepositoryImpl implements UploadRepository {
   Future<NetworkResult<UploadResponse>> uploadImages(
     List<File> images, {
     void Function(int sent, int total)? onProgress,
+    CancelToken? cancelToken,
   }) async {
     try {
       final formData = FormData();
@@ -30,9 +30,13 @@ class UploadRepositoryImpl implements UploadRepository {
       final response = await apiService.uploadImages(
         formData,
         onSendProgress: onProgress,
+        cancelToken: cancelToken,
       );
       return Success(UploadResponse.fromJson(response));
     } on DioException catch (e) {
+      if (CancelToken.isCancel(e)) {
+        return Error(ServerFailure("Upload cancelled"));
+      }
       return Error(
         ServerFailure(e.response?.data?["message"] ?? "Something went wrong"),
       );

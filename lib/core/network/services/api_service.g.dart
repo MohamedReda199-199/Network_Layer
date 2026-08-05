@@ -45,6 +45,7 @@ class _ApiService implements ApiService {
   Future<dynamic> uploadImages(
     FormData formData, {
     void Function(int, int)? onSendProgress,
+    CancelToken? cancelToken,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -63,6 +64,7 @@ class _ApiService implements ApiService {
             'upload',
             queryParameters: queryParameters,
             data: _data,
+            cancelToken: cancelToken,
             onSendProgress: onSendProgress,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),

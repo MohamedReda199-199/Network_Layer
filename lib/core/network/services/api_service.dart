@@ -18,5 +18,6 @@ abstract class ApiService {
   Future<dynamic> uploadImages(
     @Body() FormData formData, {
     @SendProgress() ProgressCallback? onSendProgress,
+    @CancelRequest() CancelToken? cancelToken,
   });
 }
