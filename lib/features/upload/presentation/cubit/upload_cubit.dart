@@ -55,10 +55,10 @@ class UploadCubit extends Cubit<UploadState> {
       return;
     }
 
+    final updated = List<UploadImageModel>.from(state.images);
+
     final unUploadedIndices = <int>[];
     final filesToUpload = <File>[];
-
-    final updated = List<UploadImageModel>.from(state.images);
 
     for (int i = 0; i < updated.length; i++) {
       if (!updated[i].uploaded) {
@@ -85,11 +85,9 @@ class UploadCubit extends Cubit<UploadState> {
       filesToUpload,
       onProgress: (sent, total) {
         if (total > 0) {
-          final progress = sent / total;
+          final prog = (sent / total).clamp(0.0, 0.99);
           for (final index in unUploadedIndices) {
-            updated[index] = updated[index].copyWith(
-              progress: progress,
-            );
+            updated[index] = updated[index].copyWith(progress: prog);
           }
           emit(state.copyWith(images: List.from(updated)));
         }

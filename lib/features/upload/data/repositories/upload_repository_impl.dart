@@ -7,11 +7,13 @@ import 'package:ligalife/core/network/network_result.dart';
 import 'package:ligalife/features/upload/data/models/upload_response.dart';
 import 'package:ligalife/features/upload/domain/repositories/upload_repository.dart';
 
+import 'package:ligalife/core/network/services/api_service.dart';
+
 @LazySingleton(as: UploadRepository)
 class UploadRepositoryImpl implements UploadRepository {
-  final Dio dio;
+  final ApiService apiService;
 
-  UploadRepositoryImpl(this.dio);
+  UploadRepositoryImpl(this.apiService);
 
   @override
   Future<NetworkResult<UploadResponse>> uploadImages(
@@ -25,12 +27,11 @@ class UploadRepositoryImpl implements UploadRepository {
         final multipart = await MultipartFile.fromFile(images[i].path);
         formData.files.add(MapEntry("image[$i]", multipart));
       }
-      final response = await dio.post(
-        "${EndPoints.baseUrl}${EndPoints.upload}",
-        data: formData,
+      final response = await apiService.uploadImages(
+        formData,
         onSendProgress: onProgress,
       );
-      return Success(UploadResponse.fromJson(response.data));
+      return Success(UploadResponse.fromJson(response));
     } on DioException catch (e) {
       return Error(
         ServerFailure(e.response?.data?["message"] ?? "Something went wrong"),

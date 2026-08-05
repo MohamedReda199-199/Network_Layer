@@ -42,9 +42,13 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<dynamic> uploadImages(FormData formData) async {
+  Future<dynamic> uploadImages(
+    FormData formData, {
+    void Function(int, int)? onSendProgress,
+  }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     final _data = formData;
     final _options = _setStreamType<dynamic>(
@@ -59,6 +63,7 @@ class _ApiService implements ApiService {
             'upload',
             queryParameters: queryParameters,
             data: _data,
+            onSendProgress: onSendProgress,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );

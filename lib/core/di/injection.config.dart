@@ -52,7 +52,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.apiService(gh<_i361.Dio>()),
     );
     gh.lazySingleton<_i505.UploadRepository>(
-      () => _i308.UploadRepositoryImpl(gh<_i361.Dio>()),
+      () => _i308.UploadRepositoryImpl(gh<_i316.ApiService>()),
     );
     gh.lazySingleton<_i157.AuthApiService>(
       () => _i157.AuthApiService(gh<_i316.ApiService>()),

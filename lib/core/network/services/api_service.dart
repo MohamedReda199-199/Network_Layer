@@ -15,5 +15,8 @@ abstract class ApiService {
 
   @POST(EndPoints.upload)
   @MultiPart()
-  Future<dynamic> uploadImages(@Body() FormData formData);
+  Future<dynamic> uploadImages(
+    @Body() FormData formData, {
+    @SendProgress() ProgressCallback? onSendProgress,
+  });
 }
