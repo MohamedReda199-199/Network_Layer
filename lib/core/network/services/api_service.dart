@@ -12,4 +12,8 @@ abstract class ApiService {
 
   @POST(EndPoints.login)
   Future<dynamic> login(@Body() Map<String, dynamic> body);
+
+  @POST(EndPoints.upload)
+  @MultiPart()
+  Future<dynamic> uploadImages(@Body() FormData formData);
 }

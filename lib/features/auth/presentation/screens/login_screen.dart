@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ligalife/core/di/injection.dart';
 import 'package:ligalife/core/enums/request_state.dart';
 import 'package:ligalife/features/auth/presentation/cubit/login_cubit.dart';
 import 'package:ligalife/features/auth/presentation/cubit/login_state.dart';
-import 'package:ligalife/features/auth/presentation/screens/otp_screen.dart';
 import 'package:ligalife/features/auth/presentation/widgets/background_circles.dart';
 import 'package:ligalife/features/auth/presentation/widgets/country_code_field.dart';
 import 'package:ligalife/features/auth/presentation/widgets/login_button.dart';
 import 'package:ligalife/features/auth/presentation/widgets/login_header.dart';
 import 'package:ligalife/features/auth/presentation/widgets/phone_field.dart';
+import 'package:ligalife/features/upload/presentation/cubit/upload_cubit.dart';
+import 'package:ligalife/features/upload/presentation/screens/upload_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +21,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
+
   final TextEditingController countryCodeController = TextEditingController(
     text: "+20",
   );
@@ -39,21 +42,14 @@ class _LoginScreenState extends State<LoginScreen> {
           const BackgroundCircles(),
           SafeArea(
             child: BlocConsumer<LoginCubit, LoginState>(
-              listenWhen: (previous, current) =>
-                  previous.requestState != current.requestState,
-              buildWhen: (previous, current) =>
-                  previous.requestState != current.requestState,
               listener: (context, state) {
                 if (state.requestState == RequestState.success) {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<LoginCubit>(),
-                        child: OtpScreen(
-                          phone: phoneController.text.trim(),
-                          countryCode: countryCodeController.text.trim(),
-                        ),
+                      builder: (_) => BlocProvider(
+                        create: (_) => getIt<UploadCubit>(),
+                        child: const UploadScreen(),
                       ),
                     ),
                   );
