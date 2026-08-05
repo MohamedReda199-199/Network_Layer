@@ -1,12 +1,14 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ligalife/app_router.dart';
 import 'package:ligalife/core/enums/request_state.dart';
 import '../cubit/upload_cubit.dart';
 import '../cubit/upload_state.dart';
 import '../widgets/upload_grid.dart';
 import '../widgets/upload_header.dart';
-import 'package:ligalife/core/widgets/dialogs/app_dialogs.dart';
 
+@RoutePage()
 class UploadScreen extends StatelessWidget {
   const UploadScreen({super.key});
 
@@ -20,20 +22,25 @@ class UploadScreen extends StatelessWidget {
       body: BlocConsumer<UploadCubit, UploadState>(
         listener: (context, state) {
           if (state.requestState == RequestState.success) {
-            AppDialogs.showSuccess(
-              context,
-              title: "Success",
-              message: "Images uploaded successfully",
-              onConfirm: () {
-                context.read<UploadCubit>().clearImages();
-              },
+           context.router.push(
+              SuccessDialogRoute(
+                title: 'Success',
+                message: 'Images uploaded successfully',
+                onPrimaryAction: () {
+                  context.read<UploadCubit>().clearImages();
+                  context.router.pop();
+                },
+              ),
             );
           }
+
           if (state.requestState == RequestState.error) {
-            AppDialogs.showError(
-              context,
-              title: "Upload Failed",
-              message: state.errorMessage ?? "An error occurred while uploading",
+            context.router.push(
+              ErrorDialogRoute(
+                title: 'Upload Failed',
+                message:
+                    state.errorMessage ?? 'An error occurred while uploading',
+              ),
             );
           }
         },
@@ -55,8 +62,23 @@ class UploadScreen extends StatelessWidget {
                     onPressed: state.images.isEmpty ||
                             state.requestState == RequestState.loading
                         ? null
-                        : () {
-                            context.read<UploadCubit>().uploadImages();
+                        : () async {
+                            final cubit = context.read<UploadCubit>();
+
+                            final confirm = await context.router.push<bool>(
+                              ConfirmationDialogRoute(
+                                title: 'Start Upload?',
+                                message:
+                                    'Do you want to upload the selected images?',
+                                primaryButtonText: 'Upload',
+                                secondaryButtonText: 'Cancel',
+                                isDismissible: true,
+                              ),
+                            );
+
+                            if (confirm == true) {
+                              cubit.uploadImages();
+                            }
                           },
                     child: state.requestState == RequestState.loading
                         ? const SizedBox(

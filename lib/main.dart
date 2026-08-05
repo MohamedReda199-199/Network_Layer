@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ligalife/app_router.dart';
 import 'package:ligalife/core/di/injection.dart';
-import 'package:ligalife/features/auth/presentation/cubit/login_cubit.dart';
-import 'package:ligalife/features/auth/presentation/screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
-  runApp(const MyApp());
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final AppRouter _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'LigaLife',
       theme: ThemeData(useMaterial3: true),
-      home: BlocProvider(
-        create: (_) => getIt<LoginCubit>(),
-        child: const LoginScreen(),
-      ),
+      routerConfig: _appRouter.config(),
     );
   }
 }

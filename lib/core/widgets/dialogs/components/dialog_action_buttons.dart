@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import '../dialog_type.dart';
 
@@ -24,52 +25,33 @@ class DialogActionButtons extends StatelessWidget {
     final hasSecondary = secondaryButtonText != null;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (hasSecondary) ...[
           Expanded(
             child: OutlinedButton(
               onPressed: () {
-                if (isDismissible) Navigator.of(context).pop();
                 onSecondaryAction?.call();
+
+                if (isDismissible) {
+                  context.router.pop(false);
+                }
               },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                side: BorderSide(color: Colors.grey.shade300),
-              ),
-              child: Text(
-                secondaryButtonText!,
-                style: const TextStyle(
-                  color: Colors.black54,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: Text(secondaryButtonText!),
             ),
           ),
           const SizedBox(width: 12),
         ],
         Expanded(
           child: ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: type.color),
             onPressed: () {
-              if (isDismissible) Navigator.of(context).pop();
               onPrimaryAction?.call();
+
+              if (isDismissible) {
+                context.router.pop(true);
+              }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: type.color,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              primaryButtonText ?? 'OK',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            child: Text(primaryButtonText ?? 'OK'),
           ),
         ),
       ],

@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ligalife/core/di/injection.dart';
@@ -12,6 +13,7 @@ import 'package:ligalife/features/auth/presentation/widgets/phone_field.dart';
 import 'package:ligalife/features/upload/presentation/cubit/upload_cubit.dart';
 import 'package:ligalife/features/upload/presentation/screens/upload_screen.dart';
 
+@RoutePage()
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 

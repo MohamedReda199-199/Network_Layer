@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ligalife/core/enums/request_state.dart';
@@ -16,6 +17,7 @@ class UploadCubit extends Cubit<UploadState> {
 
   final UploadImagesUseCase _uploadImagesUseCase;
   final ImagePicker _picker = ImagePicker();
+  CancelToken? _cancelToken;
 
   Future<void> pickImages() async {
     final images = await _picker.pickMultiImage();
@@ -50,10 +52,17 @@ class UploadCubit extends Cubit<UploadState> {
     emit(state.copyWith(images: [], uploadedCount: 0));
   }
 
+  void cancelUpload() {
+    _cancelToken?.cancel('Upload cancelled by user');
+    emit(state.copyWith(requestState: RequestState.initial));
+  }
+
   Future<void> uploadImages() async {
     if (state.images.isEmpty) {
       return;
     }
+
+    _cancelToken = CancelToken();
 
     final updated = List<UploadImageModel>.from(state.images);
 
@@ -83,6 +92,7 @@ class UploadCubit extends Cubit<UploadState> {
 
     final result = await _uploadImagesUseCase(
       filesToUpload,
+      cancelToken: _cancelToken,
       onProgress: (sent, total) {
         if (total > 0) {
           final prog = (sent / total).clamp(0.0, 0.99);
