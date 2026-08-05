@@ -5,6 +5,7 @@ import '../cubit/upload_cubit.dart';
 import '../cubit/upload_state.dart';
 import '../widgets/upload_grid.dart';
 import '../widgets/upload_header.dart';
+import 'package:ligalife/core/widgets/dialogs/app_dialogs.dart';
 
 class UploadScreen extends StatelessWidget {
   const UploadScreen({super.key});
@@ -19,19 +20,20 @@ class UploadScreen extends StatelessWidget {
       body: BlocConsumer<UploadCubit, UploadState>(
         listener: (context, state) {
           if (state.requestState == RequestState.success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Images uploaded successfully"),
-              ),
+            AppDialogs.showSuccess(
+              context,
+              title: "Success",
+              message: "Images uploaded successfully",
+              onConfirm: () {
+                context.read<UploadCubit>().clearImages();
+              },
             );
           }
           if (state.requestState == RequestState.error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.errorMessage ?? "Upload failed",
-                ),
-              ),
+            AppDialogs.showError(
+              context,
+              title: "Upload Failed",
+              message: state.errorMessage ?? "An error occurred while uploading",
             );
           }
         },
