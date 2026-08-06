@@ -26,10 +26,7 @@ class LoginCubit extends Cubit<LoginState> {
       ),
     );
     final result = await loginUseCase(
-      LoginRequest(
-        phone: phone,
-        countryCode: countryCode,
-      ),
+      LoginRequest(phone: phone, countryCode: countryCode),
     );
     switch (result) {
       case Success():
@@ -51,40 +48,25 @@ class LoginCubit extends Cubit<LoginState> {
         break;
     }
   }
+
   void startCountDown() {
     _timer?.cancel();
-    emit(
-      state.copyWith(
-        countDown: 60,
-        canResend: false,
-      ),
-    );
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        if (state.countDown > 1) {
-          emit(
-            state.copyWith(
-              countDown: state.countDown - 1,
-            ),
-          );
-        } else {
-          timer.cancel();
-          emit(
-            state.copyWith(
-              countDown: 0,
-              canResend: true,
-            ),
-          );
-        }
-      },
-    );
+    emit(state.copyWith(countDown: 60, canResend: false));
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (state.countDown > 1) {
+        emit(state.copyWith(countDown: state.countDown - 1));
+      } else {
+        timer.cancel();
+        emit(state.copyWith(countDown: 0, canResend: true));
+      }
+    });
   }
 
   void resendCode() {
-   // if (!state.canResend) return;
+    // if (!state.canResend) return;
     startCountDown();
   }
+
   @override
   Future<void> close() {
     _timer?.cancel();

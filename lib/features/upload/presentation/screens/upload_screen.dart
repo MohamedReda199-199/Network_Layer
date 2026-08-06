@@ -1,42 +1,47 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ligalife/app_router.dart';
+import 'package:ligalife/core/di/injection.dart';
 import 'package:ligalife/core/enums/request_state.dart';
+import 'package:ligalife/core/widgets/dialogs/confirmation_dialog_page.dart';
+import 'package:ligalife/core/widgets/dialogs/error_dialog_page.dart';
+import 'package:ligalife/core/widgets/dialogs/success_dialog_page.dart';
 import '../cubit/upload_cubit.dart';
 import '../cubit/upload_state.dart';
 import '../widgets/upload_grid.dart';
 import '../widgets/upload_header.dart';
 
 @RoutePage()
-class UploadScreen extends StatelessWidget {
+class UploadScreen extends StatelessWidget implements AutoRouteWrapper {
   const UploadScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider(create: (_) => getIt<UploadCubit>(), child: this);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Upload Images"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Upload Images"), centerTitle: true),
       body: BlocConsumer<UploadCubit, UploadState>(
         listener: (context, state) {
           if (state.requestState == RequestState.success) {
-           context.router.push(
-              SuccessDialogRoute(
+            showDialog(
+              context: context,
+              builder: (_) => SuccessDialogPage(
                 title: 'Success',
                 message: 'Images uploaded successfully',
                 onPrimaryAction: () {
-                  context.read<UploadCubit>().clearImages();
-                  context.router.pop();
+                  Navigator.pop(context);
                 },
               ),
             );
           }
-
           if (state.requestState == RequestState.error) {
-            context.router.push(
-              ErrorDialogRoute(
+            showDialog(
+              context: context,
+              builder: (_) => ErrorDialogPage(
                 title: 'Upload Failed',
                 message:
                     state.errorMessage ?? 'An error occurred while uploading',
@@ -48,36 +53,36 @@ class UploadScreen extends StatelessWidget {
           return Column(
             children: [
               UploadHeader(state: state),
-              Expanded(
-                child: UploadGrid(
-                  images: state.images,
-                ),
-              ),
+              Expanded(child: UploadGrid(images: state.images)),
               SafeArea(
                 minimum: const EdgeInsets.all(16),
                 child: SizedBox(
                   width: double.infinity,
                   height: 55,
                   child: FilledButton(
-                    onPressed: state.images.isEmpty ||
+                    onPressed:
+                        state.images.isEmpty ||
                             state.requestState == RequestState.loading
                         ? null
                         : () async {
-                            final cubit = context.read<UploadCubit>();
-
-                            final confirm = await context.router.push<bool>(
-                              ConfirmationDialogRoute(
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => ConfirmationDialogPage(
                                 title: 'Start Upload?',
                                 message:
                                     'Do you want to upload the selected images?',
                                 primaryButtonText: 'Upload',
                                 secondaryButtonText: 'Cancel',
-                                isDismissible: true,
+                                onPrimaryAction: () {
+                                  Navigator.pop(context, true);
+                                },
+                                onSecondaryAction: () {
+                                  Navigator.pop(context, false);
+                                },
                               ),
                             );
-
                             if (confirm == true) {
-                              cubit.uploadImages();
+                              context.read<UploadCubit>().uploadImages();
                             }
                           },
                     child: state.requestState == RequestState.loading

@@ -11,7 +11,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
-
   final AppRouter _appRouter = AppRouter();
 
   @override

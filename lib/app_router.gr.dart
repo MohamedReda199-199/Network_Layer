@@ -204,7 +204,7 @@ class LoginRoute extends PageRouteInfo<void> {
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const LoginScreen();
+      return WrappedRoute(child: const LoginScreen());
     },
   );
 }
@@ -295,7 +295,7 @@ class UploadRoute extends PageRouteInfo<void> {
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const UploadScreen();
+      return WrappedRoute(child: const UploadScreen());
     },
   );
 }

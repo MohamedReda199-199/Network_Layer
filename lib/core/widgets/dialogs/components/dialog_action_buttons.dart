@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import '../dialog_type.dart';
 
@@ -32,8 +31,8 @@ class DialogActionButtons extends StatelessWidget {
               onPressed: () {
                 onSecondaryAction?.call();
 
-                if (isDismissible) {
-                  context.router.pop(false);
+                if (isDismissible && Navigator.canPop(context)) {
+                  Navigator.of(context).pop(false);
                 }
               },
               child: Text(secondaryButtonText!),
@@ -46,9 +45,8 @@ class DialogActionButtons extends StatelessWidget {
             style: ElevatedButton.styleFrom(backgroundColor: type.color),
             onPressed: () {
               onPrimaryAction?.call();
-
-              if (isDismissible) {
-                context.router.pop(true);
+              if (isDismissible && Navigator.canPop(context)) {
+                Navigator.of(context).pop(true);
               }
             },
             child: Text(primaryButtonText ?? 'OK'),

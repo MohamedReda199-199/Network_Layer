@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ligalife/app_router.dart';
 import 'package:ligalife/core/di/injection.dart';
 import 'package:ligalife/core/enums/request_state.dart';
 import 'package:ligalife/features/auth/presentation/cubit/login_cubit.dart';
@@ -10,12 +11,15 @@ import 'package:ligalife/features/auth/presentation/widgets/country_code_field.d
 import 'package:ligalife/features/auth/presentation/widgets/login_button.dart';
 import 'package:ligalife/features/auth/presentation/widgets/login_header.dart';
 import 'package:ligalife/features/auth/presentation/widgets/phone_field.dart';
-import 'package:ligalife/features/upload/presentation/cubit/upload_cubit.dart';
-import 'package:ligalife/features/upload/presentation/screens/upload_screen.dart';
 
 @RoutePage()
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatefulWidget implements AutoRouteWrapper {
   const LoginScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider(create: (_) => getIt<LoginCubit>(), child: this);
+  }
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -27,7 +31,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController countryCodeController = TextEditingController(
     text: "+20",
   );
-
   @override
   void dispose() {
     phoneController.dispose();
@@ -46,15 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: BlocConsumer<LoginCubit, LoginState>(
               listener: (context, state) {
                 if (state.requestState == RequestState.success) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider(
-                        create: (_) => getIt<UploadCubit>(),
-                        child: const UploadScreen(),
-                      ),
-                    ),
-                  );
+                  context.router.replace(const UploadRoute());
                 }
                 if (state.requestState == RequestState.error) {
                   ScaffoldMessenger.of(context).showSnackBar(

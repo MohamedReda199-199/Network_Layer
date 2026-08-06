@@ -1,12 +1,10 @@
 import 'dart:io';
-
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ligalife/core/enums/request_state.dart';
 import 'package:ligalife/core/network/network_result.dart';
-
 import '../../domain/usecases/upload_images_usecase.dart';
 import 'upload_image_model.dart';
 import 'upload_state.dart';
@@ -17,21 +15,24 @@ class UploadCubit extends Cubit<UploadState> {
 
   final UploadImagesUseCase _uploadImagesUseCase;
   final ImagePicker _picker = ImagePicker();
+
   CancelToken? _cancelToken;
 
   Future<void> pickImages() async {
     final images = await _picker.pickMultiImage();
-    if (images.isEmpty) return;
+    if (images.isEmpty || isClosed) return;
     final list = List<UploadImageModel>.from(state.images);
     for (final image in images) {
       list.add(UploadImageModel(file: File(image.path)));
     }
-    emit(state.copyWith(images: list));
+    if (!isClosed) {
+      emit(state.copyWith(images: list));
+    }
   }
 
   Future<void> pickCamera() async {
     final image = await _picker.pickImage(source: ImageSource.camera);
-    if (image == null) return;
+    if (image == null || isClosed) return;
     emit(
       state.copyWith(
         images: [
@@ -43,29 +44,34 @@ class UploadCubit extends Cubit<UploadState> {
   }
 
   void removeImage(int index) {
+    if (isClosed) return;
     final list = List<UploadImageModel>.from(state.images);
     list.removeAt(index);
     emit(state.copyWith(images: list));
   }
 
   void clearImages() {
-    emit(state.copyWith(images: [], uploadedCount: 0));
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        images: [],
+        uploadedCount: 0,
+        requestState: RequestState.initial,
+      ),
+    );
   }
 
   void cancelUpload() {
-    _cancelToken?.cancel('Upload cancelled by user');
-    emit(state.copyWith(requestState: RequestState.initial));
+    _cancelToken?.cancel();
+    if (!isClosed) {
+      emit(state.copyWith(requestState: RequestState.initial));
+    }
   }
 
   Future<void> uploadImages() async {
-    if (state.images.isEmpty) {
-      return;
-    }
-
+    if (state.images.isEmpty) return;
     _cancelToken = CancelToken();
-
     final updated = List<UploadImageModel>.from(state.images);
-
     final unUploadedIndices = <int>[];
     final filesToUpload = <File>[];
 
@@ -73,37 +79,34 @@ class UploadCubit extends Cubit<UploadState> {
       if (!updated[i].uploaded) {
         unUploadedIndices.add(i);
         filesToUpload.add(updated[i].file);
-        updated[i] = updated[i].copyWith(
-          uploading: true,
-          progress: 0,
-        );
+        updated[i] = updated[i].copyWith(uploading: true, progress: 0);
       }
     }
-
     if (filesToUpload.isEmpty) return;
-
-    emit(
-      state.copyWith(
-        requestState: RequestState.loading,
-        errorMessage: null,
-        images: List.from(updated),
-      ),
-    );
-
+    if (!isClosed) {
+      emit(
+        state.copyWith(
+          requestState: RequestState.loading,
+          errorMessage: null,
+          images: List.from(updated),
+        ),
+      );
+    }
     final result = await _uploadImagesUseCase(
       filesToUpload,
       cancelToken: _cancelToken,
       onProgress: (sent, total) {
+        if (isClosed) return;
         if (total > 0) {
-          final prog = (sent / total).clamp(0.0, 0.99);
+          final progress = (sent / total).clamp(0.0, 0.99);
           for (final index in unUploadedIndices) {
-            updated[index] = updated[index].copyWith(progress: prog);
+            updated[index] = updated[index].copyWith(progress: progress);
           }
           emit(state.copyWith(images: List.from(updated)));
         }
       },
     );
-
+    if (isClosed) return;
     switch (result) {
       case Success():
         for (final index in unUploadedIndices) {
@@ -117,7 +120,7 @@ class UploadCubit extends Cubit<UploadState> {
           state.copyWith(
             requestState: RequestState.success,
             images: List.from(updated),
-            uploadedCount: state.images.length,
+            uploadedCount: updated.length,
           ),
         );
       case Error():
@@ -135,5 +138,11 @@ class UploadCubit extends Cubit<UploadState> {
           ),
         );
     }
+  }
+
+  @override
+  Future<void> close() {
+    _cancelToken?.cancel();
+    return super.close();
   }
 }

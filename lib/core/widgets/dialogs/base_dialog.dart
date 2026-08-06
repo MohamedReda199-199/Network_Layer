@@ -58,10 +58,7 @@ class BaseDialog extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 22.0,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(fontSize: 22.0, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16.0),
